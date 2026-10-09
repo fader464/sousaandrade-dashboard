@@ -942,7 +942,7 @@ function renderKPIs(total){
     {lbl:'CTR médio', val:fmtPct(ctrAll)},
     {lbl:'CPC médio', val:total.clicks? fmtBRL(cpcAll):'—'},
     {lbl:'CPM médio', val:total.impr? fmtBRL(cpmAll):'—'},
-    {lbl:'Campanhas ativas', val:'15'},
+    {lbl:'Campanhas ativas', val:fmtInt(total.active||0)},
   ];
   document.getElementById('kpiGrid').innerHTML = kpis.map(k =>
     `<div class="kpi-card${k.accent?' accent':''}"><div class="lbl">${k.lbl}</div><div class="val">${k.val}</div></div>`
@@ -1008,7 +1008,7 @@ function renderProducts(products, fromDateStr, toDateStr){
       ${qualHtml}
     </div>`;
   });
-  document.getElementById('productGrid').innerHTML = productHtml;
+  document.getElementById('productGrid').innerHTML = productHtml || `<div class="camp-empty" style="grid-column:1/-1">Nenhuma campanha rodou no período selecionado.</div>`;
 }
 
 // ---------- master render: reacts to the date range ----------
@@ -1030,9 +1030,12 @@ function renderAll(){
   if(toIdx === -1) toIdx = DAILY_DATES.length-1;
   if(fromIdx > toIdx){ const t = fromIdx; fromIdx = toIdx; toIdx = t; }
 
-  const products = computeProducts(fromIdx, toIdx);
+  const allProducts = computeProducts(fromIdx, toIdx);
+  // só aparecem campanhas que rodaram (tiveram investimento) no período selecionado
+  const products = allProducts.filter(p=>p.spend>0);
   const total = computeTotal(products);
   total.leads = computeTotalLeadsAllProducts(fromIdx, toIdx);
+  total.active = products.length;
   renderKPIs(total);
   renderProducts(products, fromVal, toVal);
   renderAdsets(fromIdx, toIdx);
@@ -1561,6 +1564,15 @@ function renderCreatives(filter){
     if(g.s>m.best){ m.best=g.s; if(a.t) m.thumb=a.t; if(a.b) m.body=a.b; }
   });
   const all = Object.values(map);
+  const rodaram = new Set(all.map(c=>c.product));
+  document.querySelectorAll('.filter-chip').forEach(chip=>{
+    const f = chip.dataset.filter;
+    chip.style.display = (f==='Todos' || rodaram.has(f)) ? '' : 'none';
+  });
+  if(currentCreativeFilter!=='Todos' && !rodaram.has(currentCreativeFilter)){
+    currentCreativeFilter = 'Todos';
+    document.querySelectorAll('.filter-chip').forEach(c=>c.classList.toggle('active', c.dataset.filter==='Todos'));
+  }
   let list = [];
   if(currentCreativeFilter==='Todos'){
     PRODUCT_ORDER.forEach(p=>{ list = list.concat(all.filter(c=>c.product===p).sort(rankSort).slice(0,3)); });
