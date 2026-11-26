@@ -1048,6 +1048,12 @@ function computeTotal(products){
 
 // ---------- render KPIs ----------
 // ---------- conversões (leads de formulário, Meta) e conversas (campanha Remanescentes no WhatsApp) ----------
+function metaLeadsRange(fromIdx, toIdx){            // leads do CRM com origem campanha do Meta Ads
+  let n = 0;
+  FUNNEL_PRODUCTS.forEach(p=>{ const q = QUAL_DAILY[p] && QUAL_DAILY[p]['Meta Ads']; if(!q) return; for(let i=fromIdx; i<=toIdx; i++){ const v = q[i]; if(v) n += v[0] + v[1] + v[2]; } });
+  return n;
+}
+
 function convTotals(fromIdx, toIdx){
   let convSpend = 0, conv = 0, wppSpend = 0, wppConv = 0, wppClicks = 0, wppImpr = 0, gSpend = 0, gConv = 0, gLeads = 0;
   PRODUCT_ORDER.forEach(p=>{ const a = CONV_PROD[p]; if(!a) return; for(let i=fromIdx; i<=toIdx; i++){ const d = a[i]; if(d){ convSpend += d[0]; conv += d[1]; } } });
@@ -1067,13 +1073,16 @@ function renderKPIs(total){
   const cplAll = total.leads? total.spend/total.leads : 0;
 
   const gOn = cv.gSpend>0 && cv.gLeads>0, cOn = cv.wppConv>0;
+  const convAll = cv.conv + (cv.gSpend>0? cv.gConv : 0), convSpendAll = cv.convSpend + cv.gSpend;
+  const metaLeads = metaLeadsRange(rg[0], rg[1]), metaSpend = total.spend - cv.gSpend;
   const kpis = [
-    {lbl:'Conversões (Meta)', val:fmtInt(cv.conv), accent:true},
-    {lbl:'Custo por conversão (Meta)', val:cv.conv? fmtBRL(cv.convSpend/cv.conv):'—'},
+    {lbl:'Conversões', val:fmtInt(convAll), accent:true},
+    {lbl:'Custo por conversão', val:convAll? fmtBRL(convSpendAll/convAll):'—'},
+    {lbl:'Leads (Meta)', val:fmtInt(metaLeads)},
+    {lbl:'Custo por lead (Meta)', val:metaLeads? fmtBRL(metaSpend/metaLeads):'—'},
   ];
   if(cOn) kpis.push({lbl:'Conversas (Meta)', val:fmtInt(cv.wppConv)}, {lbl:'Custo por conversa (Meta)', val:fmtBRL(cv.wppSpend/cv.wppConv)});
   if(gOn) kpis.push({lbl:'Leads (Google)', val:fmtInt(cv.gLeads)}, {lbl:'Custo por lead (Google)', val:cv.gLeads? fmtBRL(cv.gSpend/cv.gLeads):'—'});
-  kpis.push({lbl:'Leads', val:fmtInt(total.leads)}, {lbl:'Custo por lead médio', val:total.leads? fmtBRL(cplAll):'—'});
   kpis.push(
     {lbl:'Investido total', val:fmtBRL(total.spend)},
     {lbl:'Alcance'+suf, val:fmtInt(total.reach)},
