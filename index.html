@@ -1071,9 +1071,9 @@ function renderKPIs(total){
     {lbl:'Conversões (Meta)', val:fmtInt(cv.conv), accent:true},
     {lbl:'Custo por conversão (Meta)', val:cv.conv? fmtBRL(cv.convSpend/cv.conv):'—'},
   ];
-  kpis.push({lbl:'Leads', val:fmtInt(total.leads)}, {lbl:'Custo por lead médio', val:total.leads? fmtBRL(cplAll):'—'});
-  if(gOn) kpis.push({lbl:'Leads (Google)', val:fmtInt(cv.gLeads)}, {lbl:'Custo por lead (Google)', val:cv.gLeads? fmtBRL(cv.gSpend/cv.gLeads):'—'});
   if(cOn) kpis.push({lbl:'Conversas (Meta)', val:fmtInt(cv.wppConv)}, {lbl:'Custo por conversa (Meta)', val:fmtBRL(cv.wppSpend/cv.wppConv)});
+  if(gOn) kpis.push({lbl:'Leads (Google)', val:fmtInt(cv.gLeads)}, {lbl:'Custo por lead (Google)', val:cv.gLeads? fmtBRL(cv.gSpend/cv.gLeads):'—'});
+  kpis.push({lbl:'Leads', val:fmtInt(total.leads)}, {lbl:'Custo por lead médio', val:total.leads? fmtBRL(cplAll):'—'});
   kpis.push(
     {lbl:'Investido total', val:fmtBRL(total.spend)},
     {lbl:'Alcance'+suf, val:fmtInt(total.reach)},
