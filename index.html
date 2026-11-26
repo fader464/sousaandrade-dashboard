@@ -1066,12 +1066,11 @@ function renderKPIs(total){
   const suf = total.partial? ' (até '+METRICS_UNTIL+')' : '';
   const cplAll = total.leads? total.spend/total.leads : 0;
 
-  const gOn = cv.gSpend>0 && (cv.gConv>0 || cv.gLeads>0), cOn = cv.wppConv>0;
+  const gOn = cv.gSpend>0 && cv.gLeads>0, cOn = cv.wppConv>0;
   const kpis = [
     {lbl:'Conversões (Meta)', val:fmtInt(cv.conv), accent:true},
     {lbl:'Custo por conversão (Meta)', val:cv.conv? fmtBRL(cv.convSpend/cv.conv):'—'},
   ];
-  if(gOn) kpis.push({lbl:'Conversões (Google)', val:fmtInt(cv.gConv)}, {lbl:'Custo por conversão (Google)', val:cv.gConv? fmtBRL(cv.gSpend/cv.gConv):'—'});
   kpis.push({lbl:'Leads', val:fmtInt(total.leads)}, {lbl:'Custo por lead médio', val:total.leads? fmtBRL(cplAll):'—'});
   if(gOn) kpis.push({lbl:'Leads (Google)', val:fmtInt(cv.gLeads)}, {lbl:'Custo por lead (Google)', val:cv.gLeads? fmtBRL(cv.gSpend/cv.gLeads):'—'});
   if(cOn) kpis.push({lbl:'Conversas (Meta)', val:fmtInt(cv.wppConv)}, {lbl:'Custo por conversa (Meta)', val:fmtBRL(cv.wppSpend/cv.wppConv)});
